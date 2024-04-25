@@ -1,0 +1,335 @@
+---
+title: "RESEARCH ASSIGNMENT"
+author: "Pearline Chrissie Nagabattula"
+date: "2023-11-28"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# ABSTRACT
+
+
+
+
+
+# INTRODUCTION
+
+Cancer has been a prevalent and commonly occurring disease in our society for a long period of time. Cancer is a disease in which some of the body's cells grow uncontrollably and spread to other parts of the body(1). The effects of this disease on a person's mental and physical health are enormous, and can lead to distress, depression and feelings of hopelessness. 
+
+So far, despite the extreme advancements in technology, there is no complete cure for cancer. This disease has the power to take away lives. But the development of modern medical care has made treatment methods available to treat different stages of cancer. 
+Some of these treatments include surgery (removal of cancerous tissues/cells from the body), Chemotherapy (involves medicines that shrink or kill cancer cells)
+Radiation therapy: (Using high-energy rays, similar to X-rays, to kill cancer cells) Hormone therapy (Blocks cancer cells from getting the hormones they need to grow) and many more (2). 
+These treatment methods use costly equipment, are expensive for an average earning person to access, and have serious repercussions on a person's health, as they come with a lot of side effects. 
+
+A person's ability to access treatment and avoid death caused by this inevitable disease depends on many socioeconomic factors including the geography and economic status of the place he/she is living in. Different places around the world, have different levels of poverty, accessibility to healthcare and awareness of cancer risk factors and treatments available.  
+
+It has been known for some time that poverty is associated with worse cancer outcomes, including a higher risk of mortality due to cancer (3). 
+A new study by NCI researchers who looked at the correlation between poverty and cancer deaths in the United States, found that people who live in counties in the United States that experience persistent poverty are more likely to die from cancer than people in other counties (3).
+
+The **research question** we aim to analyze in this paper is:
+Do socioeconomic factors (such as poverty percent, incidence rate of cancer, median income level and private health coverage) of various counties in the United States affect the rate of death due to cancer?
+And if they do, is it a positive effect or a negative effect?
+
+**Hypothesis 1:**
+Our Null hypothesis is that socioeconomic factors of various counties in the United States do not affect the rates of death due to cancer?
+Our Alternate hypothesis is that socioeconomic factors of various counties in the United States affect the rates of death due to cancer?
+
+If our null hypothesis is rejected, we shall further observe whether the relationship between the different socioeconomic variables we have selected have a positive or negative impact on the mortality rate due to cancer and prove/disprove the hypothesis that:
+
+**Hypothesis 2 (assumptions):**
+Null Hypothesis $H_0$: Socioeconomic factors increase the rates of death due to cancer. 
+Alternate Hypothesis $H_A$: socioeconomic factors decrease the rates rates of death due to cancer. 
+
+change equation
+$$
+H_0: \beta_0 = 0 \text{(flat line)}  \qquad \text{versus} \qquad 
+H_A: \beta_A \not= 0 \text{(not a flat line)}
+$$
+
+# METHODS
+
+### Data sources:
+This dataset was obtained from a previous course I had taken in my 3rd year. It consists of 3047 rows which represent different **counties** across continental states in the United States. There are 34 columns which represent different **socio-economic and health factors** that affect the economic conditions of each county. 
+
+For our research, we focus on 4 socioeconomic variables that we believe may have an effect on cancer death rates (TARGET_deathRate: dependant/response variable). 
+
+Independant/Predictor variables: 
+* PovertyPercent (percentage of residents below the poverty line)
+* medIncome (median income)
+* incidenceRate (rate of incidence of all cancers, age-adjusted incidence per 100,000)
+* PctPrivateCoverage (private health insurance provided by companies and private insurance, including cancer treatment)
+
+### Study population + collection methods:
+The socioeconomic variables of median income, incidence and mortality rates of cancer, poverty percentage and public health insurance were retrieved from published records and statistics on each county's population data in 3047 different counties in the US between the years 2007-2011.
+
+Median income and access to private health insurance was assessed using self reported survey's of average household incomes and private insurance coverage within a random population with a large sample size to increase randomness. 
+Incidence and Mortality rate of cancer information was retrieved from various hospitals within each county to provide a census. 
+
+Persistent poverty counties, according to the US Census, are defined as those with 20% or more of the population living below the federal poverty level since 1980 (3).
+
+### Conceptual  Model:
+Cancer Death rate = Poverty percent, cancer incidence rate, median income, private health insurance
+
+### (only for slides)
+We shall first look at the association of the variables of interest with each other.
+
+**Descriptive Statistics**
+```{r}
+# we use read.csv() to extract our dataset and store it in a vector.
+cancer <- read.csv("cancer.csv")
+
+# we subset our variables of interest into vectors using $
+death_rate <- cancer$TARGET_deathRate
+med_income <- cancer$medIncome
+incidence_rate <- cancer$incidenceRate
+pov_percent <- cancer$povertyPercent
+pvt_coverage <- cancer$PctPrivateCoverage
+summary(cancer[, c(3, 4, 5, 7, 27)])
+```
+
+```{r}
+# we use hist() to create histograms of each variable
+hist(death_rate, col = "lightblue", main = "histogram showing frequency of cancer death rate")
+hist(pov_percent, main = "histogram showing frequency of poverty percentage")
+hist(incidence_rate, main = "histogram showing frequency of cancer incidence rate") 
+hist(med_income, main = "histogram showing frequency of median income")
+hist(pvt_coverage, main = "histogram showing frequency of private health insurance")
+```
+
+This histogram display a **normal distribution** indicating that all the variables are normally distributed about the mean of the data, and are more frequent in occurrence around the mean number of counties.
+
+
+```{r}
+# we load the dplyr package using library()
+# we calculate mean, sd, se and IC of the variable: death rate
+library(dplyr)
+deathrate <- cancer %>%
+  group_by() %>%
+  summarise( 
+    n=n(),
+    mean=mean(death_rate),
+    sd=sd(death_rate)
+  ) %>%
+  mutate( se=sd/sqrt(n))  %>%
+  mutate( ic=se * qt((1-0.05)/2 + .5, n-1))
+deathrate
+
+povpercent <- cancer %>%
+  group_by() %>%
+  summarise( 
+    n=n(),
+    mean=mean(pov_percent),
+    sd=sd(pov_percent)
+  ) %>%
+  mutate( se=sd/sqrt(n))  %>%
+  mutate( ic=se * qt((1-0.05)/2 + .5, n-1))
+povpercent
+
+incrate <- cancer %>%
+  group_by() %>%
+  summarise( 
+    n=n(),
+    mean=mean(incidence_rate),
+    sd=sd(incidence_rate)
+  ) %>%
+  mutate( se=sd/sqrt(n))  %>%
+  mutate( ic=se * qt((1-0.05)/2 + .5, n-1))
+incrate
+
+medinc <- cancer %>%
+  group_by() %>%
+  summarise( 
+    n=n(),
+    mean=mean(med_income),
+    sd=sd(med_income)
+  ) %>%
+  mutate( se=sd/sqrt(n))  %>%
+  mutate( ic=se * qt((1-0.05)/2 + .5, n-1))
+medinc
+
+pvtcov <- cancer %>%
+  group_by() %>%
+  summarise( 
+    n=n(),
+    mean=mean(pvt_coverage),
+    sd=sd(pvt_coverage)
+  ) %>%
+  mutate( se=sd/sqrt(n))  %>%
+  mutate( ic=se * qt((1-0.05)/2 + .5, n-1))
+pvtcov
+```
+### Statistical Analysis:
+
+We shall use **multiple linear regression** to do our analysis, since we want to know if one variable caused a change in other variables. Here we want to know whether the rate of death due to cancer is related to the socioeconomic factors - median income, poverty percent, private health insurance and incidence rate of cancer. We do not know from previous information whether they are related in any way or are independant events. Thus we use regression to find the relationship between them. 
+
+```{r}
+cancermodel <- lm(death_rate ~ med_income + incidence_rate + pvt_coverage + pov_percent)
+```
+
+### Assumptions to be tested:
+
+1. Random sample: The data was collected randomly from populations in each county. 
+
+2. Independant observations: They are tested separately so independant.
+
+3. MULTICOLLINEARITY: Are the explanatory and response variables linearly related?
+```{r}
+# multiple linear regression model:
+cancermodel <- lm(death_rate ~ med_income + incidence_rate + pvt_coverage + pov_percent)
+# we load the car package from the library
+# we use vif() function: variance inflation factors to check for multicollinearity
+library(car)
+vif(cancermodel)
+```
+Multicollinearity is a condition in which two or more predictor variables in a multiple regression model are highly correlated.
+
+VIF <= 4: No multicollinearity. The variance of the coefficient is not inflated at all (4). From these results, there is no collinearity, thus we can keep the variables. 
+
+4. NORMALITY: histograms of residuals + variables (all show normality)
+```{r}
+# we create a histogram of the residuals of our linear model. 
+hist(cancermodel$residuals, col = "lightgrey", 
+     main = "Histogram showing normality within residuals of the linear model")
+```
+**Conclusion:** From the histogram, we also see a normal distribution because of the bell shaped curve that is evident and indicates normality. 
+
+5 **HOMOSCEDASTICITY - Is there homogeneity of Variance?** 
+Residuals vs. Fitted Plots
+```{r}
+# we use the car package to create a residual plot.
+library(car)
+residualPlot(cancermodel)
+```
+**Conclusion:** looking at the residual vs fitted plots, we see that the plot is unbiased and homoscedastic as the values are randomly placed on the plot with no particular trend. The residual mean is 0, and the standard deviation is constant across the plot. This means that the variance is uniform throughout the range of fitted values. This is also an indication of linearity. 
+
+# RESULTS
+We tested the first hypothesis that economically deprived regions do not have higher death rates due to cancer (H0) versus do have higher death rates due to cancer (HA), using a multiple linear regression model of our target variable with the factor variables. 
+```{r}
+cancermodel <- lm(death_rate ~ pov_percent + incidence_rate 
+                  + med_income + pvt_coverage)
+summary(cancermodel)
+```
+
+
+The **p-values** of all the variables are very low (less than alpha 0.05), including the overall p-value (2.2E-16), indicating that we can reject the null hypothesis and conclude that socioeconomic factors do have an effect on cancer mortality rates. 
+
+Since we were able to reject our null hypothesis, we shall dive further into our second research question:
+** Do these socioeconomic factors increase or decrease the cancer mortality rates?** 
+
+**insert scatterPLOTS**
+
+```{r}
+par(mfrow = c(1, 2))
+plot(x = pov_percent, y = death_rate, col = "black", 
+     xlab = "poverty percentage", ylab = "cancer death rate", 
+     main = "Fig 1. Scatterplot showing the positive relationship 
+     between cancer death rate and poverty percentage. 
+     As poverty increases, cancer death rate increases. 
+     Blue line depicts the line of best fit.", cex.main = 0.5)
+mod_pov <- lm(death_rate ~ pov_percent, data = cancer)
+abline(mod_pov, col = "blue", lwd = 2)
+
+plot(x = incidence_rate, y = death_rate, col = "black", 
+     xlab = "incidence rate of cancer", ylab = "cancer death rate", 
+      main = "Fig 2. Scatterplot showing the positive relationship 
+     between cancer death rate and cancer incidence rate. 
+     As the incidence of cancer, deaths due to cancer increases. 
+     Blue line depicts the line of best fit.", cex.main = 0.5, adj = -16)
+mod_inc <- lm(death_rate ~ incidence_rate, data = cancer)
+abline(mod_inc, col = "blue", lwd = 2)
+```
+
+## Positive Association
+
+From these scatterplots, we can see a positive association between the 2 variables. The blue line indicates that **as the percentage of residents below the poverty line increases, the rates of death due to cancer also increases.**
+
+This could be due to various reasons such as the poor not being able to get access to proper healthcare, which eventually results in death as there is no known cure for cancer. The poor also end up getting exposed to more carcinogens, when they have to work low-income jobs in dangerous places that are not properly regulated. 
+
+Similarly, the blue line in the 2nd plot indicates that **as the incidence rate of age-adjusted cancers per 100,000 people increases, the rates of death due to Cancer also increases.**
+
+This makes sense because as the rate of incidence of cancer increases in different populations, and since it is known that there is no known cure for cancer, only treatments to reduce it, the end result of cancer is death, which explains the increase in the death rates due to cancer. 
+
+```{r}
+par(mfrow = c(1, 2))
+plot(x = med_income, y = death_rate, col = "black", 
+     xlab = "median income", ylab = "cancer death rate", 
+     main = "Fig 3. Scatterplot showing the negative relationship 
+     between cancer death rate and median income. 
+     As median income increases, cancer death rate decreases. 
+     Purple line depicts the line of best fit.", cex.main = 0.5)
+mod_med_inc <- lm(death_rate ~ med_income, data = cancer)
+abline(mod_med_inc, col = "purple", lwd = 3)
+
+plot(x = pvt_coverage, y = death_rate, col = "black", 
+     xlab = "private health insurance", ylab = "cancer death rate", 
+     main = "Fig 4. Scatterplot showing the negative relationship 
+     between cancer death rate and access private health insurance. 
+     As access to private insurance increases, deaths due to cancer 
+     decreases. Purple line depicts the line of best fit", cex.main = 0.5)
+mod_pvt <- lm(death_rate ~ pvt_coverage, data = cancer)
+abline(mod_pvt, col = "purple", lwd = 3)
+```
+
+## Negative Association
+
+From these scatterplots, we can see a negative association between the 2 variables. The red line indicates that **as the median income level of a county increases, the rates of death due to cancer decreases.**
+
+This is because, as the income level of people increases, they have enough money and resources to access better and proper healthcare, and can get access to treatment for cancer, to reduce its effects with methods such as chemotherapy and radiotherapy. 
+
+It is scientifically proven that cancer and radiation therapy and other therapies such as immunotherapy, hormon therapy and surgery contributes to 40% chances of treating cancer and preventing death (Baskar et al. 2012).
+Thus, this reduces the rate of deaths, which explains our scatterplot. 
+
+Similarly, the yellow line in the 4th plot indicates that **when more people have private coverage for their health expenses, the rates of death due to cancer decreases.**
+
+The reason for this is because private coverage ensures that an employee of a private company will get access to treatments that are financially covered by the company. 
+
+These plots prove that economically deprived regions are home to people who have higher death rates due to cancer, and economically rich regions are home to people who have lower death rates due to cancer. 
+
+```{r}
+coefficients(cancermodel)
+```
+
+From the summary, we find an overall good model fit. The **estimates** represent the correlation of the factor variables to the target variable, with a postive value for povertyPercent and incidence Rate and a negative value for medIncome and PctPrivateCoverage. 
+
+The **adjusted R square value** indicates that there is a correlation of 42% between the factor variables and the target variable, and this R square value can increase if more variables are added and considered in this model. 
+
+It typically also proves that the from the 4 factors, the 2 negative factors improved the model less than expected as their negative estimate values are lower than the positive estimate values of the other 2 variables, thus giving us an adjusted R square value of 0.42 or 42%. 
+
+This makes sense as the effects of factors such as having public coverage and having a high median income in different counties increases the economic conditions of the county and thus decreases the rate of deaths due to cancer way more. 
+
+Ofcourse I would like to mention that, these results will vary depending on different variables that can be incorporated into this multiple regression model, and depending on the strength of the economic factor and whether it has a positive effect or negative effect on the economy of a county and the incidence of death due to cancer, the results will keep changing. 
+
+
+# DISCUSSION
+TALK ABOUT HOW IT INCREASES ETC. (scatterplot description + summary)
+
+
+# REFERENCES
+
+1. (https://www.cancer.gov/about-cancer/understanding/what-is-cancer#:~:text=Cancer%20is%20a%20disease%20in,up%20of%20trillions%20of%20cells.) 
+
+2. https://www.cdc.gov/cancer/survivors/patients/treatments.htm#:~:text=Surgery%3A%20An%20operation%20where%20doctors,hormones%20they%20need%20to%20grow.
+
+3. https://www.cancer.gov/news-events/cancer-currents-blog/2020/persistent-poverty-increased-cancer-death-risk
+
+4. Analytics Vidhya. (2023). 6 Assumptions of linear regression: Plots and solutions. Accessed November 15, 2023 from 
+https://www.analyticsvidhya.com/blog/2016/07/deeper-regression-analysis-assumptions-plots-solutions/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
